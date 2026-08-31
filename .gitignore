@@ -1,0 +1,93 @@
+#===============================================================================
+# BIOVIR LAB — modelo de apresentações
+#-------------------------------------------------------------------------------
+# O repositório guarda apenas o TEMA: os .qmd de origem, o SCSS, os filtros
+# Lua, as fontes e os logos. Tudo que o `quarto render` sabe reconstruir fica
+# de fora — é o que mantém o clone leve e o histórico legível.
+#===============================================================================
+
+#-- Saída do Quarto ------------------------------------------------------------
+# Os .html são gerados a partir dos .qmd e pesam de 5 a 25 MB cada (o tema é
+# self-contained: fontes, logos e fotos vão embutidos). Quem clonar o repo
+# roda `quarto render` e obtém o mesmo arquivo.
+/*.html
+/*_files/
+/.quarto/
+/_site/
+
+# Cache de execução de chunks R/Python. Útil localmente para não re-executar
+# código a cada render; inútil (e pesado) no repositório.
+/_freeze/
+
+# PDFs exportados do navegador (?print-pdf)
+/*.pdf
+
+#-- Apresentações pessoais -----------------------------------------------------
+# Cada pessoa cria o seu .qmd a partir de `modelo-apresentacao.qmd`. Se quiser
+# versionar o SEU seminário, comente a linha abaixo ou use um repositório
+# próprio — o padrão é não sujar o modelo do laboratório.
+#
+# O modelo e o tutorial ficam de fora desta regra (as duas exceções `!`).
+/*.qmd
+!/modelo-apresentacao.qmd
+!/tutorial.qmd
+
+# Pasta de imagens de uma apresentação pessoal (convenção: <nome>-assets/).
+# `assets/` — os logos e as fotos da equipe — continua versionada.
+/*-assets/
+
+#-- Fotos da equipe ------------------------------------------------------------
+# Backup criado por tools/otimizar-fotos.sh na primeira execução.
+/assets/members-originais/
+
+#-- Arte não usada pelo tema ---------------------------------------------------
+# Versões alternativas dos logos e da foto coletiva que nenhum .qmd, .yml ou
+# .scss referencia — juntas somam ~12 MB. Os arquivos continuam no disco; só
+# não entram no repositório. Se passar a usar algum, remova a linha
+# correspondente. Em uso hoje: logo-virus.svg, logo-vertical-center.svg,
+# logo-horizontal-small.png e team-complete.jpg.
+/assets/logo-vertical-center.ai
+/assets/logo-vertical-center.ai.svg
+/assets/logo-without-text-virus.png
+/assets/logo-without-text-virus.svg
+/assets/team-complete.png
+/assets/team-complete.svg
+
+#-- Bibliografia ---------------------------------------------------------------
+# `refs.bib` é o arquivo de citações de cada pessoa; o repositório carrega só
+# o exemplo (`refs-exemplo.bib`).
+/refs.bib
+
+# Cópia solta do estilo ABNT na raiz. O arquivo que o tema usa é
+# `config/abnt.csl`; este aqui pode ser apagado.
+/abnt.csl
+
+#-- Sistema operacional e editores ---------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+#-- R / Python -----------------------------------------------------------------
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+.env
+
+**/*.quarto_ipynb

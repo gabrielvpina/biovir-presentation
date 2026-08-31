@@ -1,0 +1,1197 @@
+---
+title: "Como fazer slides no Biovir Lab"
+subtitle: "Guia prático de Quarto + reveal.js, do zero ao PDF"
+author:
+  - name: "Biovir Lab"
+date: today
+engine: markdown
+---
+
+# Antes de começar {.divider background-color="#304ea1"}
+
+## O que é Quarto?
+
+Quarto é um sistema que transforma **texto simples** em apresentação,
+artigo, site ou PDF.
+
+::: {.columns}
+::: {.column width="52%"}
+Você escreve um arquivo `.qmd` — texto com marcações leves — e o Quarto
+gera os slides em HTML usando o **reveal.js**.
+:::
+
+::: {.column width="48%"}
+::: {.highlight}
+**Por que não PowerPoint?**
+
+- versionável no Git
+- roda código R/Python de verdade
+- identidade visual idêntica em todo o laboratório
+:::
+:::
+:::
+
+## Instalação: três peças
+
+::: {.cards}
+::: {.card}
+#### 1. Quarto CLI
+O programa que converte `.qmd` em slides.
+**Obrigatório.**
+:::
+
+::: {.card}
+#### 2. Um editor
+Qualquer um serve, mas com a extensão certa você ganha preview ao vivo.
+**Recomendado.**
+:::
+
+::: {.card}
+#### 3. R ou Python
+Só se a apresentação for **executar código**.
+**Opcional.**
+:::
+:::
+
+::: {.highlight}
+Instala-se uma vez por computador. Depois disso, criar uma apresentação
+nova é só copiar um arquivo.
+:::
+
+## 1. Instalar o Quarto {.smaller}
+
+Em qualquer sistema, o caminho mais confiável é o instalador oficial:
+[quarto.org/docs/get-started](https://quarto.org/docs/get-started/)
+
+::: {.cards}
+::: {.card}
+#### Windows
+Baixe o `.msi` e execute (duplo clique, *Next* até o fim).
+
+Pelo terminal:
+
+`winget install --id Posit.Quarto`
+:::
+
+::: {.card}
+#### macOS
+Baixe o `.pkg` e execute.
+
+Com Homebrew:
+
+`brew install --cask quarto`
+:::
+
+::: {.card}
+#### Linux
+Debian / Ubuntu — baixe o `.deb` e:
+
+`sudo dpkg -i quarto-*-amd64.deb`
+
+Outras distros: use o `.tar.gz` do site.
+:::
+:::
+
+::: {.caption}
+Em máquinas do laboratório sem senha de administrador, o `.tar.gz` do Linux e
+o instalador "somente para este usuário" do Windows funcionam sem `sudo`.
+:::
+
+## 2. Escolher um editor {.smaller}
+
+::: {.cards}
+::: {.card}
+#### VS Code
+Gratuito, o mais usado. Instale a extensão **Quarto** (aba de extensões,
+busque por "Quarto").
+:::
+
+::: {.card}
+#### Positron
+Da mesma empresa do RStudio, já vem com suporte a Quarto embutido.
+Bom para quem usa R e Python.
+:::
+
+::: {.card}
+#### RStudio
+Funciona sem instalar nada a mais. Familiar para quem já usa R.
+:::
+:::
+
+::: {.highlight}
+Nenhum editor é obrigatório: dá para escrever no Bloco de Notas e rodar
+`quarto render` no terminal. A extensão só acrescenta preview e realce
+de sintaxe.
+:::
+
+## 3. Conferir se deu certo {.smaller}
+
+Abra o terminal — **Prompt de Comando** ou **PowerShell** no Windows,
+**Terminal** no macOS e no Linux — e rode:
+
+```bash
+quarto --version
+```
+
+Se aparecer um número de versão, está instalado. Para um diagnóstico
+completo:
+
+```bash
+quarto check
+```
+
+::: {.columns}
+::: {.column width="50%"}
+::: {.box}
+**`quarto: command not found`**
+
+O terminal ainda não enxerga o Quarto. Feche e abra o terminal de novo;
+se persistir, reinstale marcando a opção de adicionar ao `PATH`.
+:::
+:::
+
+::: {.column width="50%"}
+::: {.box}
+**R ou Python "não encontrado"**
+
+Normal, e sem problema: só importa se você for executar código nos slides.
+:::
+:::
+:::
+
+## O que tem nesta pasta
+
+```
+biovir-presentation/
+├── _quarto.yml              ← configuração de TODAS as apresentações
+├── modelo-apresentacao.qmd  ← ponto de partida: copie este arquivo
+├── tutorial.qmd             ← este guia
+├── refs-exemplo.bib         ← renomeie p/ refs.bib e ative as citações
+├── styles/
+│   ├── variaveis.scss       ← cores e fontes (mexa aqui)
+│   ├── fonts.scss           ← declaração das fontes locais
+│   ├── biovir.scss          ← tema base
+│   └── componentes.scss     ← caixas, cartões, capa, equipe
+├── config/                  ← filtros, shortcode da equipe, estilo ABNT
+├── tools/                   ← otimizar-fotos.sh
+├── fonts/                   ← .woff2 locais (funciona sem internet)
+└── assets/
+    ├── members/             ← fotos da equipe, por hierarquia
+    └── ...                  ← logos
+```
+
+::: {.highlight}
+Para fazer slides você mexe **só no seu `.qmd`**. O resto já está pronto.
+:::
+
+## Começando uma apresentação nova
+
+```bash
+# 1. entre na pasta
+cd biovir-presentation
+
+# 2. copie o modelo
+cp modelo-apresentacao.qmd seminario-2026-03.qmd
+
+# 3. abra o preview (recarrega sozinho a cada save)
+quarto preview seminario-2026-03.qmd
+```
+
+Quando terminar:
+
+```bash
+quarto render seminario-2026-03.qmd
+```
+
+::: {.caption}
+O resultado é um único `seminario-2026-03.html`, autossuficiente: abre com
+duplo clique em qualquer computador, sem internet e sem pasta ao lado.
+:::
+
+# A anatomia de um `.qmd` {.divider background-color="#304ea1"}
+
+## Duas partes: cabeçalho e conteúdo
+
+O arquivo começa com um bloco entre `---`, chamado **YAML**. Só isso
+é obrigatório:
+
+```yaml
+---
+title: "Diversidade viral em solos de Caatinga"
+subtitle: "Resultados preliminares do sequenciamento"
+author:
+  - name: "Maria Silva"
+    email: "maria@uesc.br"
+    affiliation: "PPG em Genética e Biologia Molecular"
+institute: "Universidade Estadual de Santa Cruz · Ilhéus, Bahia"
+date: today
+---
+```
+
+Depois do segundo `---` vem o conteúdo, em Markdown.
+
+::: {.caption}
+Tudo o mais — tema, cores, logo, numeração — já vem de `_quarto.yml`.
+:::
+
+## Autoria e afiliação {.smaller}
+
+::: {.columns}
+::: {.column width="52%"}
+`affiliation:` é **de cada autor** — repita o bloco `- name:` e dê a sua a
+cada um:
+
+```yaml
+author:
+  - name: "Maria Silva"
+    affiliation: "PPG em Genética"
+  - name: "João Souza"
+    affiliation: "Depto. de Ciências Biológicas"
+```
+:::
+
+::: {.column width="48%"}
+`institute:` é **comum a todos**, e aparece abaixo dos nomes:
+
+```yaml
+institute: "UESC · Ilhéus, Bahia"
+```
+
+::: {.box}
+Use um **ou** outro. Os dois juntos mostram duas linhas de afiliação por
+autor.
+:::
+:::
+:::
+
+::: {.caption}
+Qualquer um dos dois pode ser apagado; a capa se reorganiza sozinha.
+:::
+
+## Como nascem os slides
+
+| Você escreve | O que acontece |
+|---|---|
+| `## Título` | novo slide de conteúdo |
+| `# Título` | slide de divisão de seção |
+| `---` (três traços) | novo slide sem título |
+| `### Subtítulo` | subtítulo *dentro* do slide |
+
+::: {.highlight}
+Regra prática: **um `##` = um slide**. Se o conteúdo transbordar,
+divida em dois slides em vez de diminuir a fonte.
+:::
+
+## Divisores de seção
+
+```markdown
+# Metodologia {.divider background-color="#304ea1"}
+```
+
+Produz a faixa azul com o título grande. Existe também a versão clara:
+
+```markdown
+# Metodologia {.divider-light}
+```
+
+::: {.caption}
+`{.divider}` é a classe visual; `background-color` é o que pinta o fundo
+do slide inteiro. Os dois andam juntos na versão azul.
+:::
+
+# Escrevendo o conteúdo {.divider background-color="#304ea1"}
+
+## Markdown essencial
+
+::: {.columns}
+::: {.column width="50%"}
+```markdown
+**negrito**
+*itálico*
+`código inline`
+[link](https://biovir.br)
+
+- item
+- outro item
+  - sub-item
+
+1. primeiro
+2. segundo
+```
+:::
+
+::: {.column width="50%"}
+**negrito**
+*itálico*
+`código inline`
+[link](https://biovir.br)
+
+- item
+- outro item
+  - sub-item
+
+1. primeiro
+2. segundo
+:::
+:::
+
+## Duas colunas
+
+```markdown
+::: {.columns}
+::: {.column width="60%"}
+Conteúdo da esquerda
+:::
+
+::: {.column width="40%"}
+Conteúdo da direita
+:::
+:::
+```
+
+::: {.highlight}
+Os `:::` são **divs**. Sempre em pares: um para abrir, um para fechar.
+Indentar não importa; contar sim.
+:::
+
+## Imagens
+
+```markdown
+![](assets/minha-figura.png){width="70%"}
+
+![](assets/foto.jpg){.framed width="60%"}
+```
+
+::: {.columns}
+::: {.column width="50%"}
+Sem moldura:
+
+![](assets/logo-horizontal-small.png){width="88%"}
+:::
+
+::: {.column width="50%"}
+Com `.framed`:
+
+![](assets/logo-horizontal-small.png){.framed width="88%"}
+:::
+:::
+
+## Legendas e notas
+
+Para uma legenda pequena e discreta sob a figura:
+
+```markdown
+::: {.caption}
+Figura 1. Distribuição das amostras por município. n = 1.245.
+:::
+```
+
+::: {.caption}
+Figura 1. Distribuição das amostras por município. n = 1.245.
+:::
+
+Para o **teleprompter** (só você vê, na tela do apresentador com a tecla `S`):
+
+```markdown
+::: {.notes}
+Lembrar de citar a colaboração com o LIKA.
+:::
+```
+
+::: {.notes}
+Esta é uma nota do apresentador. Aperte S para ver a tela de apresentador.
+:::
+
+# Componentes da identidade {.divider background-color="#304ea1"}
+
+## Caixas
+
+::: {.columns}
+::: {.column width="52%"}
+```markdown
+::: {.highlight}
+Ideia central do slide.
+:::
+
+::: {.box}
+Bloco neutro, com contorno.
+:::
+
+::: {.highlight-strong}
+Afirmação de máximo peso.
+:::
+```
+:::
+
+::: {.column width="48%"}
+::: {.highlight}
+Ideia central do slide.
+:::
+
+::: {.box}
+Bloco neutro, com contorno.
+:::
+
+::: {.highlight-strong}
+Afirmação de máximo peso.
+:::
+:::
+:::
+
+## Cartões em grade
+
+```markdown
+::: {.cards}
+::: {.card}
+#### Coleta
+Origem e período das amostras.
+:::
+::: {.card}
+#### Sequenciamento
+Plataforma e profundidade.
+:::
+:::
+```
+
+::: {.cards}
+::: {.card}
+#### Coleta
+Origem e período das amostras.
+:::
+
+::: {.card}
+#### Sequenciamento
+Plataforma e profundidade.
+:::
+
+::: {.card}
+#### Análise
+Pipeline e versões.
+:::
+:::
+
+## Números em destaque
+
+```markdown
+::: {.number}
+### 1.245
+amostras analisadas
+:::
+```
+
+::: {.columns}
+::: {.column width="33%"}
+::: {.number}
+### 1.245
+amostras analisadas
+:::
+:::
+
+::: {.column width="33%"}
+::: {.number}
+### 87%
+cobertura média
+:::
+:::
+
+::: {.column width="33%"}
+::: {.number}
+### 12
+genomas novos
+:::
+:::
+:::
+
+## Marcações no texto
+
+Etiqueta: `[Em revisão]{.label}` → [Em revisão]{.label}
+
+Grifo: `[termo-chave]{.mark}` → um [termo-chave]{.mark} no meio da frase
+
+Tamanhos: `[texto]{.small}` e `[texto]{.tiny}`
+
+::: {.caption}
+Colchetes com chaves — `[conteúdo]{.classe}` — aplicam estilo a um trecho
+**dentro** da linha. Os `:::` aplicam a um bloco inteiro.
+:::
+
+## Trocar a cor de uma caixa {.smaller}
+
+Some uma classe de cor a qualquer `.highlight`, `.box`, `.card` ou
+`.highlight-strong`:
+
+```markdown
+::: {.card .red}
+#### Limitação
+Amostragem restrita a uma estação do ano.
+:::
+```
+
+::: {.cards}
+::: {.card .red}
+#### `.red`
+Limitações, riscos, o que deu errado.
+:::
+
+::: {.card .amber}
+#### `.amber`
+Atenção, resultado preliminar.
+:::
+
+::: {.card .green}
+#### `.green`
+Validado, concluído.
+:::
+
+::: {.card .slate}
+#### `.slate`
+Nota neutra, detalhe técnico.
+:::
+:::
+
+::: {.caption}
+Para uma cor fora da paleta, defina a variável direto no `.qmd`:
+`::: {.card style="--color: #7b2d8e"}`.
+:::
+
+## Resumo das classes {.smaller .scrollable}
+
+| Classe | O que faz |
+|:--|:--|
+| `.divider` | slide de divisão de seção (com `background-color`) |
+| `.divider-light` | idem, em fundo branco |
+| `.highlight` | caixa de ideia central |
+| `.box` | bloco neutro com contorno |
+| `.highlight-strong` | afirmação de máximo peso, fundo azul |
+| `.cards` + `.card` | grade de cartões |
+| `.number` | número grande + legenda |
+| `.red` `.amber` `.green` `.slate` | cor alternativa das caixas acima |
+| `[texto]{.label}` | etiqueta em pílula |
+| `[texto]{.mark}` | grifo azul |
+| `[texto]{.small}` `[texto]{.tiny}` | texto menor |
+| `.caption` | legenda discreta |
+| `.text-center` `.text-right` | alinhamento |
+| `.gray` `.blue` `.blue-light` | cor do texto |
+| `.spaced` | respiro acima do bloco |
+| `.no-bullets` | lista sem marcador |
+| `![](f.png){.framed}` | moldura na imagem |
+| `![](f.jpg){.round}` | recorte circular |
+| `.team-full` | slide da equipe (mosaico + nomes) |
+| `.names` | lista de nomes em 4 colunas |
+| `.team` | fecho curto com foto ao fundo |
+
+::: {.caption}
+As classes do próprio Quarto continuam em inglês e valem aqui:
+`.columns` `.column` `.incremental` `.notes` `.smaller` `.scrollable`
+`.fragment`.
+:::
+
+## Slide mais compacto
+
+Quando um slide tem muito conteúdo, reduza tudo de uma vez:
+
+```markdown
+## Resultados detalhados {.smaller}
+```
+
+E para conteúdo que ainda assim não cabe:
+
+```markdown
+## Tabela longa {.scrollable}
+```
+
+::: {.highlight}
+Use com moderação. Slide cheio é sinal de que faltam slides, não de que
+falta espaço.
+:::
+
+# Revelação e código {.divider background-color="#304ea1"}
+
+## Revelar por partes
+
+::: {.columns}
+::: {.column width="45%"}
+```markdown
+::: {.incremental}
+- aparece primeiro
+- depois este
+- por fim este
+:::
+```
+
+Ou uma pausa solta com três pontos separados por espaços:
+
+```markdown
+Primeira parte.
+
+. . .
+
+Segunda parte.
+```
+:::
+
+::: {.column width="55%"}
+::: {.incremental}
+- aparece primeiro
+- depois este
+- por fim este
+:::
+
+. . .
+
+::: {.box}
+Esta caixa entrou depois da pausa.
+:::
+:::
+:::
+
+## Blocos de código
+
+Três crases e o nome da linguagem:
+
+```bash
+minimap2 -ax map-ont referencia.fa leituras.fq | \
+  samtools sort -o alinhado.bam
+```
+
+Para destacar linhas específicas, use `code-line-numbers`:
+
+````markdown
+```{.python code-line-numbers="2-3"}
+import pandas as pd
+df = pd.read_csv("amostras.csv")
+df = df.query("cobertura > 0.8")
+df.head()
+```
+````
+
+## Código que roda de verdade
+
+Troque `python` por `{python}` (ou `{r}`) e o Quarto **executa** o bloco,
+inserindo o resultado no slide:
+
+````markdown
+```{python}
+#| label: fig-cobertura
+#| fig-cap: "Cobertura por amostra"
+#| echo: false
+
+import matplotlib.pyplot as plt
+plt.plot(dados.posicao, dados.cobertura)
+plt.show()
+```
+````
+
+::: {.columns}
+::: {.column width="50%"}
+::: {.box}
+**Opções úteis** (linhas `#|`)
+
+`echo: false` — esconde o código
+`output: false` — esconde o resultado
+`fig-width` / `fig-height` — tamanho
+:::
+:::
+
+::: {.column width="50%"}
+::: {.caption}
+Requer R (pacote `knitr`) ou Python (`jupyter`) instalado.
+Rode `quarto check` para confirmar.
+:::
+:::
+:::
+
+## Tabelas
+
+```markdown
+| Grupo    | n   | Cobertura |
+|----------|----:|----------:|
+| Controle | 120 |     94,2% |
+| Teste A  |  98 |     88,7% |
+```
+
+| Grupo    | n   | Cobertura |
+|----------|----:|----------:|
+| Controle | 120 |     94,2% |
+| Teste A  |  98 |     88,7% |
+
+::: {.caption}
+Os dois-pontos na linha de traços definem o alinhamento:
+`|---:|` à direita, `|:---|` à esquerda, `|:---:|` centralizado.
+:::
+
+# Apresentando e exportando {.divider background-color="#304ea1"}
+
+## Atalhos durante a apresentação
+
+::: {.columns}
+::: {.column width="50%"}
+| Tecla | O que faz |
+|:--|:--|
+| `→` `←` | avança / volta |
+| `F` | tela cheia |
+| `S` | tela do apresentador |
+| `O` | visão geral dos slides |
+:::
+
+::: {.column width="50%"}
+| Tecla | O que faz |
+|:--|:--|
+| `B` ou `.` | tela preta (pausa) |
+| `M` | menu de navegação |
+| `Esc` | sai do modo atual |
+| `?` | lista todos os atalhos |
+:::
+:::
+
+::: {.highlight}
+`S` abre uma segunda janela com suas notas, o próximo slide e um cronômetro.
+Coloque-a no seu notebook e projete só a principal.
+:::
+
+::: {.caption}
+`B` deixa a tela preta para a plateia olhar para você — útil ao responder
+uma pergunta longa.
+:::
+
+## Exportar para PDF
+
+1. Abra o `.html` no navegador
+2. Acrescente `?print-pdf` no fim do endereço
+3. `Ctrl/Cmd + P` → **Salvar como PDF**
+4. Margens: **Nenhuma** · marque **Gráficos de segundo plano**
+
+```
+file:///.../seminario-2026-03.html?print-pdf
+```
+
+::: {.caption}
+Animações e revelação incremental viram slides estáticos no PDF.
+:::
+
+## Compartilhar a apresentação
+
+O `.html` gerado **já é um arquivo único**: fontes, logos, fotos, CSS e
+JavaScript estão todos dentro dele.
+
+::: {.columns}
+::: {.column width="52%"}
+Isso significa que você pode:
+
+- mandar por e-mail ou WhatsApp
+- copiar para um pen drive
+- abrir no computador do auditório
+
+sem levar pasta nenhuma junto e **sem depender de internet**.
+:::
+
+::: {.column width="48%"}
+::: {.highlight}
+**O preço**
+
+O arquivo fica com alguns MB. Se ficar grande demais para e-mail, reduza
+as fotos da equipe:
+
+`bash tools/otimizar-fotos.sh`
+:::
+:::
+:::
+
+::: {.caption}
+Quem definiu isso foi `embed-resources: true`, no `_quarto.yml` — vale para
+todas as apresentações da pasta.
+:::
+
+## E o quadro-branco? {.smaller}
+
+O reveal.js tem um plugin (`chalkboard`) que permite **desenhar sobre o
+slide** com as teclas `B` e `C`. Ele está **desligado** neste modelo.
+
+::: {.columns}
+::: {.column width="50%"}
+::: {.box}
+**Por quê**
+
+O plugin não é compatível com `embed-resources: true`. Com os dois ligados,
+o Quarto aborta a renderização com erro.
+:::
+:::
+
+::: {.column width="50%"}
+::: {.box}
+**Como ligar**
+
+Em `_quarto.yml`: troque `embed-resources` para `false` e descomente o bloco
+`chalkboard:`.
+
+Você troca o arquivo único pelo quadro.
+:::
+:::
+:::
+
+::: {.caption}
+Alternativa sem abrir mão de nada: use a caneta do próprio sistema
+(no Windows, `Win` + `Shift` + `S`; no macOS, uma anotação por cima).
+:::
+
+# Ajustes finos {.divider background-color="#304ea1"}
+
+## Mudar cores ou fontes
+
+Abra `styles/variaveis.scss`. As primeiras linhas são:
+
+```scss
+$biovir-azul:       #304ea1;   // primária
+$biovir-azul-claro: #326db5;   // secundária
+
+$fonte-titulo: "Space Grotesk", sans-serif;
+$fonte-texto:  "Inter", sans-serif;
+$fonte-codigo: "JetBrains Mono", monospace;
+```
+
+Para trocar de fonte: coloque o `.woff2` em `fonts/`, declare o
+`@font-face` em `styles/fonts.scss` e mude o nome acima.
+
+::: {.caption}
+Fontes atuais: Space Grotesk, Inter e JetBrains Mono — todas SIL Open Font
+License, hospedadas localmente. Licenças em `fonts/OFL-*.txt`.
+:::
+
+## Mudar algo só na sua apresentação
+
+Qualquer opção de `_quarto.yml` pode ser sobrescrita no YAML do seu `.qmd`:
+
+```yaml
+---
+title: "Aula de bioinformática"
+format:
+  revealjs:
+    footer: "BIO-042 · Turma 2026.1"
+    slide-number: false
+    transition: slide
+---
+```
+
+::: {.highlight}
+O que você **não** escrever continua vindo de `_quarto.yml` — inclusive
+tema, fontes e logos. Nunca é preciso repetir o bloco `theme:`.
+:::
+
+::: {.caption}
+O rodapé vem **desligado** no modelo. O exemplo acima o liga só nesta
+apresentação — útil para identificar uma disciplina ou um evento.
+:::
+
+## Sete hábitos de um bom slide {.smaller}
+
+::: {.columns}
+::: {.column width="50%"}
+1. **Uma ideia por slide.** Se precisa de "e também", é outro slide.
+2. **Título afirmativo.** "Cobertura caiu 12% no grupo B" > "Resultados".
+3. **Menos texto.** O slide apoia a fala; não a substitui.
+4. **Figura grande.** Se não dá para ler do fundo, não serve.
+:::
+
+::: {.column width="50%"}
+5. **Eixos rotulados.** Sempre, com unidade.
+6. **Cor com intenção.** Azul destaca; cinza acompanha.
+7. **Termine com a mensagem**, não com "Obrigado" vazio.
+:::
+:::
+
+::: {.highlight-strong}
+Se a plateia só lembrar de um slide seu, qual você quer que seja?
+Faça esse primeiro.
+:::
+
+## O slide da equipe se monta sozinho {.smaller}
+
+No `.qmd` você escreve só isto:
+
+```markdown
+## A equipe {.team-full}
+
+{{{< equipe >}}}
+
+::: {.names}
+- **Coordenação em negrito**
+- Nome de cada pessoa
+:::
+```
+
+::: {.columns}
+::: {.column width="52%"}
+As **fotos** vêm de `assets/members/`. Cada subpasta vira uma faixa do
+mosaico:
+
+```
+assets/members/
+├── professor/     → Coordenação
+├── researcher/    → Pesquisadores
+├── phd/           → Doutorado
+├── master/        → Mestrado
+└── undergraduate/ → Graduação
+```
+:::
+
+::: {.column width="48%"}
+::: {.highlight}
+**Manutenção**
+
+Entrou alguém? Largue a foto na subpasta certa.
+Saiu? Apague o arquivo.
+
+Não há lista de fotos para atualizar em lugar nenhum — subpasta vazia
+simplesmente não aparece.
+:::
+:::
+:::
+
+::: {.caption}
+Os títulos e a ordem dos grupos ficam em `_quarto.yml`, na chave `equipe:`.
+As fotos formam uma sequência contínua — a linha quebra quando enche, não a
+cada troca de grupo. A lista de nomes é independente das fotos: edite-a
+direto no `.qmd`, em 4 colunas, e use `**negrito**` para a coordenação.
+:::
+
+## Ajustes do mosaico {.smaller}
+
+| Você escreve | O que muda |
+|:--|:--|
+| `{{{< equipe >}}}` | mosaico completo, com o rótulo de cada grupo |
+| `{{{< equipe titulos=false >}}}` | só as fotos, sem rótulo |
+| `{{{< equipe pasta=assets/outra >}}}` | lê fotos de outra pasta |
+
+::: {.columns}
+::: {.column width="50%"}
+::: {.box}
+**Fotos aceitas**
+
+`.png` `.jpg` `.jpeg` `.webp` `.gif` `.svg` — em qualquer tamanho, cortadas
+em círculo automaticamente. Retratos aproximadamente quadrados ficam
+melhores.
+:::
+:::
+
+::: {.column width="50%"}
+::: {.box}
+**Peso do arquivo**
+
+Fotos grandes incham o `.html` (que é self-contained). Para reduzir sem
+perder qualidade visível:
+
+`bash tools/otimizar-fotos.sh`
+:::
+:::
+:::
+
+## Citações e bibliografia {.smaller}
+
+Renomeie `refs-exemplo.bib` para **`refs.bib`** e pronto — não há nada a
+configurar:
+
+```bash
+mv refs-exemplo.bib refs.bib
+```
+
+::: {.columns}
+::: {.column width="50%"}
+No `.qmd`, cite assim:
+
+| Você escreve | Sai assim |
+|:--|:--|
+| `[@silva2024]` | (Silva, 2024) |
+| `@silva2024` | Silva (2024) |
+| `[@silva2024, p. 42]` | (Silva, 2024, p. 42) |
+| `[@a2024; @b2023]` | (A, 2024; B, 2023) |
+:::
+
+::: {.column width="50%"}
+::: {.highlight}
+**O que acontece sozinho**
+
+- as citações viram texto no padrão **ABNT**
+- um slide **Bibliografia** entra no fim, só com o que foi citado
+- sem `refs.bib`, nada disso aparece
+:::
+:::
+:::
+
+::: {.caption}
+O `.bib` sai pronto do Zotero, do Mendeley ou do Google Acadêmico
+(botão "Citar" → BibTeX).
+:::
+
+## Ajustando a bibliografia {.smaller}
+
+Tudo opcional, no YAML do seu `.qmd`:
+
+```yaml
+---
+title: "Meu seminário"
+bibliography: minhas-referencias.bib   # outro arquivo
+titulo-bibliografia: "Referências"     # outro título de slide
+csl: config/outro-estilo.csl           # outro estilo de citação
+---
+```
+
+Para escolher **onde** o slide entra — por exemplo, antes do slide da
+equipe — escreva você mesmo; o filtro percebe e não duplica:
+
+```markdown
+## Bibliografia
+
+::: {#refs}
+:::
+```
+
+::: {.caption}
+Referência citada mas ausente do `.bib` aparece como `?` e o Quarto avisa
+no terminal. Referência presente no `.bib` mas nunca citada não entra no
+slide.
+:::
+
+## Quando algo dá errado {.smaller}
+
+::: {.highlight}
+**"A apresentação pula sozinha de volta para o começo."**
+
+Quase sempre é um `:::` que começa com um título (`##`, `###`, `####`).
+O pandoc transforma esse bloco em um **slide**, o reveal.js perde a conta
+dos índices e volta ao início.
+:::
+
+Nos componentes do laboratório — `.card`, `.box`, `.highlight`,
+`.highlight-strong`, `.number` — isso já está resolvido pelo filtro
+`config/titulos-em-blocos.lua`. Em um div **seu**, prefira:
+
+::: {.columns}
+::: {.column width="50%"}
+Evite:
+
+```markdown
+::: {.meu-bloco}
+### Título
+Texto.
+:::
+```
+:::
+
+::: {.column width="50%"}
+Use:
+
+```markdown
+::: {.meu-bloco}
+**Título**
+
+Texto.
+:::
+```
+:::
+:::
+
+## Slides em branco no meio {.smaller}
+
+::: {.highlight}
+**Tudo o que vier entre o `---` do YAML e o primeiro `##` vira um slide
+sem título — inclusive comentários `<!-- ... -->`.**
+:::
+
+::: {.columns}
+::: {.column width="50%"}
+Gera um slide vazio:
+
+```markdown
+---
+title: "Meu seminário"
+---
+
+<!-- anotação minha -->
+
+## Primeiro slide
+```
+:::
+
+::: {.column width="50%"}
+Correto — comentário dentro do YAML:
+
+```markdown
+---
+title: "Meu seminário"
+
+# anotação minha
+---
+
+## Primeiro slide
+```
+:::
+:::
+
+::: {.caption}
+Dentro do bloco YAML, `#` inicia um comentário. Fora dele, `#` é um título
+de seção.
+:::
+
+## Outros tropeços comuns {.smaller}
+
+::: {.cards}
+::: {.card}
+#### `:::` desemparelhado
+Cada `:::` que abre precisa de um que feche. Um a menos e o resto do
+slide some.
+:::
+
+::: {.card}
+#### Acentos no arquivo
+Salve sempre em UTF-8. Nomes de arquivo sem espaço nem acento
+(`seminario-03.qmd`).
+:::
+
+::: {.card}
+#### Imagem não aparece
+O caminho é relativo ao `.qmd`: `assets/figura.png`, não
+`/Users/.../figura.png`.
+:::
+
+::: {.card}
+#### Fonte "errada"
+Abra com duplo clique no `.html`, não dentro de um `.zip`.
+A pasta `_files/` precisa estar do lado.
+:::
+:::
+
+::: {.caption}
+Em último caso: apague a pasta `_files/` e a pasta oculta `.quarto/`,
+depois rode `quarto render` de novo.
+:::
+
+## Onde buscar ajuda
+
+::: {.cards}
+::: {.card}
+#### Documentação
+[quarto.org/docs/presentations/revealjs](https://quarto.org/docs/presentations/revealjs/)
+:::
+
+::: {.card}
+#### Markdown
+[quarto.org/docs/authoring/markdown-basics](https://quarto.org/docs/authoring/markdown-basics.html)
+:::
+
+::: {.card}
+#### No laboratório
+Abra `modelo-apresentacao.qmd`: quase toda sintaxe deste guia
+está lá, pronta para copiar.
+:::
+:::
+
+## Bons slides! {.team background-image="assets/team-complete.jpg" background-size="contain" background-position="right center" background-color="#ffffff"}
+
+[Biovir Lab]{.label}
+
+Dúvidas, sugestões de componentes novos ou problemas com o modelo:
+fale com a equipe.
+
+::: {.caption}
+Laboratório de Bioinformática e Virologia.
+:::
